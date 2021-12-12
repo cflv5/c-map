@@ -19,6 +19,13 @@ typedef struct map
 	MI* items;
 } M;
 
+typedef struct mapIterator
+{
+	int indx;
+	M* map;
+	MI* item;
+} MITR;
+
 M* mapNew()
 {
 	M* map;
@@ -88,4 +95,105 @@ void mapClose(M* map)
 
 	free(map->items);
 	free(map);
+}
+
+MITR* getMapIterator(M* map)
+{
+	MITR *iterator = NULL;
+
+	if (map == NULL)
+	{
+		return NULL;
+	}
+
+	iterator = (MITR *)malloc(sizeof(MITR));
+	if (iterator == NULL)
+	{
+		return NULL;
+	}
+
+	iterator->map = map;
+	iterator->indx = -1;
+	iterator->item = NULL;
+
+	return iterator;
+}
+
+int mapIteratorHasNext(MITR* iterator)
+{
+	int hasNext = 0;
+	M* map = NULL;
+
+	if(iterator != NULL)
+	{
+		map = iterator->map;
+		if(map && map->size > 0 && (iterator->indx + 1) < map->size)
+		{
+			hasNext = 1;
+		}
+	}
+
+	return hasNext;
+}
+
+int mapIteratorNext(MITR* iterator)
+{
+	M* map = NULL;
+
+	if (iterator == NULL)
+	{
+		return 1;
+	}
+
+	map = iterator->map;
+	if(map == NULL)
+	{
+		return 2;
+	}
+
+	if (map->size == 0 || (iterator->indx + 1) >= map->size)
+	{
+		return 3;
+	}
+	else
+	{
+		iterator->indx++;
+		iterator->item = (map->items + iterator->indx);
+	}
+
+	return 0;
+}
+
+void* getIteratorVal(MITR* iterator)
+{
+	void* item = NULL;
+
+	if(iterator != NULL && iterator->item != NULL)
+	{
+		item = iterator->item->val;
+	}
+
+	return item;
+}
+
+char const* getIteratorKey(struct mapIterator* iterator)
+{
+	char const* key = NULL;
+
+	if (iterator != NULL && iterator->item != NULL)
+	{
+		key = iterator->item->key;
+	}
+
+	return key;
+}
+
+
+void closeIterator(MITR** iterator)
+{
+	if(*iterator != NULL)
+	{
+		free(*iterator);
+		*iterator = NULL;
+	}
 }
