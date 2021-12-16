@@ -12,11 +12,15 @@ void callback()
 int main()
 {
 	struct map* m;
+	struct map* map;
+	struct mapIterator* iterator = NULL;
 
 	char *strval;
 	int intval;
 	void (*funcval)();
 	char* dynval = malloc(7);
+	void* val;
+	char const* key;
 
 	m = mapNew();
 	strcpy(dynval, "dynval");
@@ -34,7 +38,29 @@ int main()
 	printf("%d\n", intval);
 	funcval();
 
+
+    iterator = getMapIterator(m);
+	printf("\nIterator has next: %s\n", mapIteratorHasNext(iterator) ? "true": "false");
+
+	while (mapIteratorNext(iterator) == 0)
+	{
+		key = getIteratorKey(iterator);
+		val = getIteratorVal(iterator);
+
+		printf("Key: %s\tVal: %p\n", key, val);
+	}
+
+	closeIterator(&iterator);
+	printf("\nIterator closed. Iterator: %p\n", iterator);
+	printf("Iterator after closed has next: %s\n", mapIteratorHasNext(iterator) ? "true" : "false");
+
+	map = mapNew();
+	iterator = getMapIterator(map);
+	printf("\nIterator on empty map has next: %s\n", mapIteratorHasNext(iterator) ? "true" : "false");
+	closeIterator(&iterator);
+
 	mapClose(m);
+	mapClose(map);
 
 	return 0;
 }
